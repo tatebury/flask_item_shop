@@ -1,0 +1,75 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+Market Page
+{% endblock %}
+{% block content %}
+
+<div class="row" style="margin-top:20px; margin-left:20px">
+   <div class="col-8">
+       <h2>The Shooting End General Store</h2>
+       <p>From the Get-Off-My-Lawn to the "Look Ma, no arms!" all your needs covererd.</p>
+       <div class="create_button">
+         {% if current_user.is_admin %}
+            <form method="POST" action="{{url_for('main.create_item')}}">
+               <button class="btn btn-outline btn-success" type="submit">Create Item</button>
+            </form>
+         {% endif %}
+       </div>
+       <br>
+      <table class="table table-hover table-dark">
+         <thead>
+            <tr>
+               <th scope="col">ID</th>
+               <th scope="col">Name</th>
+               {# <th scope="col">Barcode</th> #}
+               <th scope="col">Price</th>
+               <th scope="col">Options</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for item in items %}
+            {# {% include 'includes/items_models.html.j2' %} #}
+            <tr>
+               <td>{{ item.id }}</td>
+               <td>{{ item.name }}</td>
+               <td>{{ item.price }}$</td>
+               {# <td>
+                  <form method="POST" action="{{url_for('main.show_item')}}">
+                  <button class="btn btn-outline btn-info" type="submit">Info</button>
+                  </form>
+               </td> #}
+               <td>
+                  <form method="POST" action="{{url_for('main.add_item', id=item.id)}}">
+                  <button class="btn btn-outline btn-success" type="submit">Add To Cart</button>
+                  </form>
+               </td>
+
+               {% if current_user.is_admin %}
+               <td>
+                  <form method="POST" action="{{url_for('main.edit_item', id=item.id)}}">
+                  <button class="btn btn-outline btn-warning" type="submit">Edit</button>
+                  </form>
+               </td>
+               <td>
+                  <form method="POST" action="{{url_for('main.delete_item', id=item.id)}}">
+                  <button class="btn btn-outline btn-danger" type="submit">Delete</button>
+                  </form>
+               </td>
+               {% endif %}
+               </td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   </div>
+   <div class="col-4">
+        <h2>My Loadout</h2>
+        <p>Click on sell item to put an item back on the Market</p>
+        <br>
+
+        {% for item in current_user.cart %}
+        {{item.name}}
+        {% endfor %}
+   </div>
+</div>
+{% endblock %}
