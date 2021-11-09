@@ -8,7 +8,7 @@ Market Page
    <div class="col-8">
        <h2>The Shooting End General Store</h2>
        <p>From the Get-Off-My-Lawn to the "Look Ma, no arms!" all your needs covererd.</p>
-       <div class="create_button">
+       <div class="create_button" style="float:right;margin:0px 20px 20px 0px;">
          {% if current_user.is_admin %}
             <form method="POST" action="{{url_for('main.create_item')}}">
                <button class="btn btn-outline btn-success" type="submit">Create Item</button>
@@ -32,21 +32,21 @@ Market Page
             <tr>
                <td>{{ item.id }}</td>
                <td>{{ item.name }}</td>
-               <td>{{ item.price }}$</td>
-               {# <td>
-                  <form method="POST" action="{{url_for('main.show_item')}}">
+               <td>${{ item.price }}</td>
+               <td>
+                  <form method="POST" action="{{url_for('main.show_item', id=item.id)}}">
                   <button class="btn btn-outline btn-info" type="submit">Info</button>
                   </form>
-               </td> #}
+               </td>
                <td>
                   <form method="POST" action="{{url_for('main.add_item', id=item.id)}}">
-                  <button class="btn btn-outline btn-success" type="submit">Add To Cart</button>
+                  <button class="btn btn-outline btn-success" type="submit">Add</button>
                   </form>
                </td>
 
                {% if current_user.is_admin %}
                <td>
-                  <form method="POST" action="{{url_for('main.edit_item', id=item.id)}}">
+                  <form method="GET" action="{{url_for('main.edit_item', id=item.id)}}">
                   <button class="btn btn-outline btn-warning" type="submit">Edit</button>
                   </form>
                </td>
@@ -64,12 +64,30 @@ Market Page
    </div>
    <div class="col-4">
         <h2>My Loadout</h2>
-        <p>Click on sell item to put an item back on the Market</p>
-        <br>
-
+        <p></p>
+        <br> 
         {% for item in current_user.cart %}
-        {{item.name}}
+            <div class="cart_item_text" style="float:left;">
+               {{ item.name }} - ${{ item.price }}
+            </div>
+            
+            <div class="cart_item_remove_btn" style="float:right;">
+               <form method="POST" action="{{url_for('main.remove_item', id=item.id)}}">
+                  <button class="btn btn-outline btn-danger btn-sm" type="submit">Remove</button>
+               </form>
+            </div>
+
         {% endfor %}
+        <br><br><br><br>
+         <div class="cart_total" style="float:left;">
+            Total: ${{ cart_total }}
+         </div>
+         <div class="empty_cart_btn" style="float:right;">
+               <form method="POST" action="{{url_for('main.empty_cart')}}">
+                  <button class="btn btn-outline btn-warning btn-sm" type="submit">Empty Cart</button>
+               </form>
+         </div>
+
    </div>
 </div>
 {% endblock %}

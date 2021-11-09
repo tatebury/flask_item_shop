@@ -1,5 +1,6 @@
 from app import db as main
 from flask import render_template, request, flash, redirect, make_response, g
+from werkzeug.datastructures import MultiDict
 from app.blueprints.auth.auth import token_auth
 from flask.helpers import url_for
 import requests
@@ -15,17 +16,20 @@ def index():
     return render_template('index.html.j2')
 
 
-@main.route('/market', methods=['GET'])
+@main.route('/market', methods=['GET', 'POST'])
 @login_required
 def market():
     all_items = Item.query.all()
     items = [item.to_dict() for item in all_items]
-    return render_template('market.html.j2', items=items)
+    cart_total = 0
+    for item in Item.query.filter_by(owner=current_user.id):
+        cart_total += int(item.price)
+    return render_template('market.html.j2', items=items, cart_total=cart_total)
 
 @main.route('/create_item', methods=['GET', 'POST'])
 @login_required
 def create_item():
-    if current_user.is_admin==False:
+    if current_user.is_admin!=True:
         return redirect(url_for('main.market'))
     form = ItemCreationForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -50,8 +54,18 @@ def create_item():
     return render_template('create_item.html.j2', form = form)
 
 @main.route('/edit_item/<int:id>', methods=['GET','POST'])
+@login_required
 def edit_item(id):
-    form = ItemEditingForm()
+    if current_user.is_admin!=True:
+        return redirect(url_for('main.market'))
+    item=Item.query.get(id)
+    if request.method == 'GET':
+        form = ItemEditingForm(formdata=MultiDict({'name': item.name, 
+                                                   'price': item.price, 
+                                                   'img': item.img,
+                                                   'description': item.description}))
+    else:
+        form = ItemEditingForm()
     if request.method == 'POST' and form.validate_on_submit():
         altered_item_data = {
             "name":form.name.data,
@@ -59,7 +73,7 @@ def edit_item(id):
             "img":form.img.data,
             "description":form.description.data,
         }
-        item=Item.query.get(id)
+        
         try:
             item.from_dict(altered_item_data)
             item.save()
@@ -71,7 +85,10 @@ def edit_item(id):
     return render_template('edit_item.html.j2', form = form)
 
 @main.route('/delete_item/<int:id>', methods=['GET','POST'])
+@login_required
 def delete_item(id):
+    if current_user.is_admin!=True:
+        return redirect(url_for('main.market'))
     if request.method == 'POST':
         item_to_delete = Item.query.get(id)
         item_to_delete.delete()
@@ -79,6 +96,7 @@ def delete_item(id):
         return redirect(url_for('main.market'))
     
 @main.route('/add_item/<int:id>', methods=['GET','POST'])
+@login_required
 def add_item(id):
     if request.method == 'POST':
         item_to_add = Item.query.get(id)
@@ -86,6 +104,29 @@ def add_item(id):
         flash(f'{item_to_add.name} was added to your cart')
         return redirect(url_for('main.market'))
 
+@main.route('/remove_item/<int:id>', methods=['GET','POST'])
+@login_required
+def remove_item(id):
+    if request.method == 'POST':
+        item_to_remove = Item.query.get(id)
+        item_to_remove.remove_from_cart()
+        flash(f'{item_to_remove.name} was removed to your cart')
+        return redirect(url_for('main.market'))
+    
+@main.route('/show_item/<int:id>', methods=['GET','POST'])
+@login_required
+def show_item(id):
+    if request.method == 'POST':
+        item_to_show = Item.query.get(id)
+        return render_template('show_item.html.j2', item = item_to_show)
+
+@main.route('/empty_cart', methods=['GET', 'POST'])
+@login_required
+def empty_cart():
+    for item in Item.query.filter_by(owner=current_user.id):
+        item.owner=None
+    Item().save()
+    return redirect(url_for('market.html.j2'))
 
 
 # @main.route('/makeanadminplease/<int:id>', methods=['GET', 'POST'])

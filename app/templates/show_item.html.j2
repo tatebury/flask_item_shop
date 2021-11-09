@@ -4,24 +4,38 @@
     More Info
 {% endblock %}
 
-{% block content %}
+{% block css %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/show_item.css')}}">
+{% endblock %}
 
-      <div class="modal-header">
-        <h5 class="modal-title" id="ModalLabel">
-          <!-- -->
-          {{ item.name }}
-        </h5>
-        <button type="button" class="close"
-                data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+{% block content %}
+  <div class="modal-header">
+    <h5 class="modal-title" id="ModalLabel">
+      <!-- -->
+      {{ item.name }} &nbsp&nbsp&nbsp&nbsp ${{ item.price }}
+    </h5>
+  </div>
+
+  <div class="container">
+    <div class="item_img">
+      <img id="item_img" src="{{item.img}}" alt="item image" style="margin: 20px 0vw;
+                                                                    max-width:500px;
+                                                                    border:solid;
+                                                                    border-color:grey;
+                                                                    border-width:6px;">
+    </div>
+
+    <div class="description">
+      {{ item.description }}
+    </div>
+
+    <div class="">
+      <form method="POST" action="{{url_for('main.market')}}">
+        <button type="submit" class="btn btn-secondary" data-dismiss="">
+                Back
         </button>
-      </div>
-      <div class="modal-body">
-        {{ item.description }}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-                data-dismiss="modal">Close
-        </button>
-      </div>
+      </form>
+    </div>
+
+  </div>
 {% endblock %}

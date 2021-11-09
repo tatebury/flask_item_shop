@@ -95,7 +95,7 @@ class Item(db.Model):
         self.owner = user.id
         db.session.commit()
 
-    def remove_from_cart(self, user):
+    def remove_from_cart(self):
         self.owner = None
         db.session.commit()
         
