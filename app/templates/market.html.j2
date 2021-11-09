@@ -67,25 +67,30 @@ Market Page
         <p></p>
         <br> 
         {% for item in current_user.cart %}
-            <div class="cart_item_text" style="float:left;">
+         <div class="row">
+            <div class="col-md-8 cart_item_text" style="float:left;padding:10px;">
                {{ item.name }} - ${{ item.price }}
             </div>
             
-            <div class="cart_item_remove_btn" style="float:right;">
+            <div class="col-md-4 cart_item_remove_btn" style="float:right;padding:10px;">
                <form method="POST" action="{{url_for('main.remove_item', id=item.id)}}">
                   <button class="btn btn-outline btn-danger btn-sm" type="submit">Remove</button>
                </form>
             </div>
-
+         </div>
         {% endfor %}
         <br><br><br><br>
-         <div class="cart_total" style="float:left;">
-            Total: ${{ cart_total }}
-         </div>
-         <div class="empty_cart_btn" style="float:right;">
-               <form method="POST" action="{{url_for('main.empty_cart')}}">
-                  <button class="btn btn-outline btn-warning btn-sm" type="submit">Empty Cart</button>
-               </form>
+         <div class="row">
+            <div class="col-md-7 cart_total" style="float:left;padding:5px;">
+               Total: ${{ cart_total }}
+            </div>
+
+            <div class="col-md-5 empty_cart_btn" style="float:right;padding:5px;">
+                  <form method="POST" action="{{url_for('main.empty_cart')}}">
+                     <button class="btn btn-outline btn-warning btn-sm" type="submit">Empty Cart</button>
+                  </form>
+            </div>
+
          </div>
 
    </div>
